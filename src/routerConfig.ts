@@ -19,7 +19,7 @@ export abstract class RouterConfig extends PathUtils {
   _DONT_TOUCH_ME_auth: RouterAuth | null = null
   history: History
   notfound: RouteNotFound
-  registerScreen<
+  protected registerScreen<
     C extends new (props: RouterScreenProps) => RouterScreenComponent<
       null,
       any,
@@ -39,7 +39,7 @@ export abstract class RouterConfig extends PathUtils {
     const p =
       path === '/' ? path : this.prefixSlashAndRemoveTrailingSlashes(path)
     const screenKey = getScreenKey(ctor)
-    this._DONT_TOUCH_ME_staticRoutes[ctor.name] = {
+    this._DONT_TOUCH_ME_staticRoutes[screenKey] = {
       path: p,
       title: title ? title : '',
       component: ctor,
@@ -48,7 +48,7 @@ export abstract class RouterConfig extends PathUtils {
     }
   }
 
-  registerAuthScreen<
+  protected registerAuthScreen<
     C extends new (props: RouterScreenProps) => RouterScreenComponent<
       null,
       any,
@@ -69,7 +69,7 @@ export abstract class RouterConfig extends PathUtils {
   }): void {
     const screenKey = getScreenKey(ctor)
     const p = this.prefixSlashAndRemoveTrailingSlashes(path)
-    this._DONT_TOUCH_ME_staticRoutes[ctor.name] = {
+    this._DONT_TOUCH_ME_staticRoutes[screenKey] = {
       path: p,
       title: title ? title : '',
       component: ctor,
@@ -83,7 +83,7 @@ export abstract class RouterConfig extends PathUtils {
     }
   }
 
-  registerDynamicScreen<
+  protected registerDynamicScreen<
     Params extends {},
     C extends new (props: RouterScreenProps) => RouterScreenComponent<
       Params,
@@ -106,7 +106,7 @@ export abstract class RouterConfig extends PathUtils {
     const keys: Key[] = []
     const pathRegExp = pathToRegExp(path, keys)
     const toPath = pathToRegExp.compile(p)
-    this._DONT_TOUCH_ME_dynamicRoutes[ctor.name] = {
+    this._DONT_TOUCH_ME_dynamicRoutes[screenKey] = {
       path: p,
       component: ctor,
       screenKey,

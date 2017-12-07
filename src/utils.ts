@@ -21,7 +21,7 @@ export function getRouteFromLocation({
 }: {
   loc: HistoryLocation
   ctrl: RouterCtrl
-  action: Action
+  action?: Action
 }): Route {
   let result: Route = getBackupRoute(ctrl.config)
   let paramsLocal: any = undefined

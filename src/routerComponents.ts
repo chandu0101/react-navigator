@@ -5,6 +5,9 @@ import { Location as HistoryLocation, Action } from 'history'
 import { getRouteFromLocation } from './utils'
 import { Route } from './types'
 
+// Can't do import without .d.ts. See https://github.com/Microsoft/TypeScript/issues/15031
+const PropTypes = require('prop-types')
+
 export type RouterScreenProps = Readonly<{ navigation: RouterCtrl }>
 
 export abstract class RouterScreenComponent<Params, S, LS> extends Component<
@@ -17,19 +20,18 @@ export abstract class RouterScreenComponent<Params, S, LS> extends Component<
   static className: string
 }
 
-export const navigationContext = { navigation: 'Object' }
+export const navigationContext = { navigation: PropTypes.object }
 
 export type RouterContextProps = { ctrl: RouterCtrl }
 
 export class RouterContext extends Component<RouterContextProps, {}> {
   render() {
     return this.props.ctrl.config.renderScene(this.props.ctrl)
-    // return null;
   }
   getChildContext() {
     return { navigation: this.props.ctrl }
   }
-  childContextTypes = navigationContext
+  static childContextTypes = navigationContext
 }
 
 export type RouterProps = Readonly<{ config: RouterConfig }>
@@ -50,6 +52,9 @@ export class RouterClass extends Component<RouterProps, {}> {
         })
       }
     )
+    this.handleAuthAndSetCurrentRoute({
+      location: history.location
+    })
   }
 
   render(): ReactElement<any> {
@@ -62,7 +67,7 @@ export class RouterClass extends Component<RouterProps, {}> {
     updateComponent
   }: {
     location: HistoryLocation
-    action: Action
+    action?: Action
     updateComponent?: boolean
   }): void {
     const route = getRouteFromLocation({
