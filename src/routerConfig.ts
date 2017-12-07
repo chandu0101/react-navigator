@@ -1,17 +1,24 @@
-import { PathUtils, Dictionary, Route, RouterAuth } from './types'
+import {
+  PathUtils,
+  Dictionary,
+  Route,
+  RouterAuth,
+  RouteNotFound
+} from './types'
 import { History, Action } from 'history'
 import { RouterScreenProps, RouterScreenComponent } from './routerComponents'
 import { Key } from 'path-to-regexp'
 import pathToRegExp from 'path-to-regexp'
 import { RouterCtrl } from './routerCtrl'
 import { ReactElement, createElement } from 'react'
+import { getScreenKey } from './utils'
 
 export abstract class RouterConfig extends PathUtils {
   _DONT_TOUCH_ME_staticRoutes: Dictionary<Route> = {}
   _DONT_TOUCH_ME_dynamicRoutes: Dictionary<Route> = {}
   _DONT_TOUCH_ME_auth: RouterAuth | null = null
   history: History
-
+  notfound: RouteNotFound
   registerScreen<
     C extends new (props: RouterScreenProps) => RouterScreenComponent<
       null,
@@ -31,12 +38,12 @@ export abstract class RouterConfig extends PathUtils {
   }): void {
     const p =
       path === '/' ? path : this.prefixSlashAndRemoveTrailingSlashes(path)
-
+    const screenKey = getScreenKey(ctor)
     this._DONT_TOUCH_ME_staticRoutes[ctor.name] = {
       path: p,
       title: title ? title : '',
       component: ctor,
-      screenKey: ctor.name,
+      screenKey,
       secured: secured ? secured : true
     }
   }
@@ -60,13 +67,13 @@ export abstract class RouterConfig extends PathUtils {
     action: Action
     title?: string
   }): void {
+    const screenKey = getScreenKey(ctor)
     const p = this.prefixSlashAndRemoveTrailingSlashes(path)
-
     this._DONT_TOUCH_ME_staticRoutes[ctor.name] = {
       path: p,
       title: title ? title : '',
       component: ctor,
-      screenKey: ctor.name,
+      screenKey,
       secured: false
     }
     this._DONT_TOUCH_ME_auth = {
@@ -94,6 +101,7 @@ export abstract class RouterConfig extends PathUtils {
     title?: string
     secured?: boolean
   }): void {
+    const screenKey = getScreenKey(ctor)
     const p = this.prefixSlashAndRemoveTrailingSlashes(path)
     const keys: Key[] = []
     const pathRegExp = pathToRegExp(path, keys)
@@ -101,7 +109,7 @@ export abstract class RouterConfig extends PathUtils {
     this._DONT_TOUCH_ME_dynamicRoutes[ctor.name] = {
       path: p,
       component: ctor,
-      screenKey: ctor.name,
+      screenKey,
       keys,
       pathRegExp,
       toPath,
@@ -111,12 +119,6 @@ export abstract class RouterConfig extends PathUtils {
   }
 
   renderScene(navigation: RouterCtrl): ReactElement<any> {
-    createElement(navigation.cu)
+    return createElement(navigation.currentRoute().component, { navigation })
   }
 }
-
-function sample<T extends {}>(t: T): void {
-  console.log('OM', t)
-}
-
-const s = sample({ id: 1 })

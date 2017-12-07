@@ -1,17 +1,9 @@
-import { Component, createElement } from 'react'
+import { Component, createElement, ReactElement, CElement } from 'react'
 import { RouterCtrl } from './routerCtrl'
-
-// export type Props2<Params> = { id: string; p?: Params };
-
-// export class Test extends Component<Props2<{}>, {}> {
-//   constructor(props: Props2<{}>) {
-//     super(props);
-//   }
-
-//   render() {
-//     return "Hello";
-//   }
-// }
+import { RouterConfig } from './routerConfig'
+import { Location as HistoryLocation, Action } from 'history'
+import { getRouteFromLocation } from './utils'
+import { Route } from './types'
 
 export type RouterScreenProps = Readonly<{ navigation: RouterCtrl }>
 
@@ -22,29 +14,104 @@ export abstract class RouterScreenComponent<Params, S, LS> extends Component<
   params?: Params
   locationState?: LS
   navigation: RouterCtrl = this.props.navigation
+  static className: string
 }
 
 export const navigationContext = { navigation: 'Object' }
 
-// export class Test2 extends RouterScreenComponent<{}, Props2<{}>, {}> {
-//   // constructor(props: RouterScreenProps) {
-//   //   super(props);
-//   // }
-//   render() {
-//     return "Hello";
-//   }
-// }
+export type RouterContextProps = { ctrl: RouterCtrl }
 
-// function myFunction<
-//   P,
-//   S,
-//   C extends new (props: RouterScreenProps) => RouterScreenComponent<
-//     {},
-//     Props2<{}>,
-//     S
-//   >
-// >(c: C): void {
-//   console.log("ctor", c);
-// }
+export class RouterContext extends Component<RouterContextProps, {}> {
+  render() {
+    return this.props.ctrl.config.renderScene(this.props.ctrl)
+    // return null;
+  }
+  getChildContext() {
+    return { navigation: this.props.ctrl }
+  }
+  childContextTypes = navigationContext
+}
 
-// const s = myFunction(Test2);
+export type RouterProps = Readonly<{ config: RouterConfig }>
+
+export class RouterClass extends Component<RouterProps, {}> {
+  ctrl: RouterCtrl
+  unlisten?: () => void
+
+  componentWillMount() {
+    const history = this.props.config.history
+    this.ctrl = new RouterCtrl(history, this.props.config)
+    this.unlisten = history.listen(
+      (location: HistoryLocation, action: Action) => {
+        this.handleAuthAndSetCurrentRoute({
+          location,
+          action,
+          updateComponent: true
+        })
+      }
+    )
+  }
+
+  render(): ReactElement<any> {
+    return createElement(RouterContext, { ctrl: this.ctrl })
+  }
+
+  handleAuthAndSetCurrentRoute({
+    location,
+    action,
+    updateComponent
+  }: {
+    location: HistoryLocation
+    action: Action
+    updateComponent?: boolean
+  }): void {
+    const route = getRouteFromLocation({
+      loc: location,
+      action,
+      ctrl: this.ctrl
+    })
+    const isSecured = route.secured ? route.secured : true
+    if (
+      this.ctrl.config._DONT_TOUCH_ME_auth == null ||
+      !isSecured ||
+      this.ctrl.config._DONT_TOUCH_ME_auth.validator()
+    ) {
+      if (
+        this.ctrl._DONT_TOUCH_ME_currentRoute &&
+        this.ctrl._DONT_TOUCH_ME_currentRoute.action
+      ) {
+        this.ctrl._DONT_TOUCH_ME_previousRoute = this.ctrl._DONT_TOUCH_ME_currentRoute
+      }
+      this.ctrl._DONT_TOUCH_ME_currentRoute = route
+      if (updateComponent) {
+        this.forceUpdate()
+      }
+    } else {
+      let loginRoute: Route | null = null
+      for (let screenKey of Object.keys(
+        this.ctrl.config._DONT_TOUCH_ME_staticRoutes
+      )) {
+        const r = this.ctrl.config._DONT_TOUCH_ME_staticRoutes[screenKey]
+        if (screenKey === this.ctrl.config._DONT_TOUCH_ME_auth.screenKey) {
+          loginRoute = r
+          break
+        }
+      }
+      if (loginRoute) {
+        if (this.ctrl.config._DONT_TOUCH_ME_auth.action === 'REPLACE') {
+          this.ctrl.config.history.replace(loginRoute.path)
+        } else {
+          this.ctrl.config.history.push(loginRoute.path)
+        }
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.unlisten) this.unlisten()
+  }
+}
+
+export function Router(props: RouterProps): CElement<RouterProps, RouterClass> {
+  return createElement(RouterClass, props)
+}

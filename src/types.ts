@@ -1,4 +1,4 @@
-import { Location, Action } from 'history'
+import { Action } from 'history'
 
 import { RegExpOptions, Key, PathFunction } from 'path-to-regexp'
 import { removeTrailingForwardSlashes } from './utils'
@@ -20,7 +20,7 @@ export type Route = Readonly<{
   pathRegExp?: RegExp
   toPath?: PathFunction
   search?: string
-  action?: string
+  action?: Action
 }>
 
 export type RouterAuth = Readonly<{
@@ -38,4 +38,4 @@ export abstract class PathUtils {
 
 export type RouteNotFound = Readonly<{ page: RouterScreenKey; action: Action }>
 
-export type RouterScreenProps<P> = Readonly<{ navigation: RouterCtrl }>
+export type RouterScreenProps = Readonly<{ navigation: RouterCtrl }>
