@@ -11,11 +11,11 @@ export class RouterCtrl {
     this.history = history
     this.config = config
   }
-  _DONT_TOUCH_ME_currentRoute: Route
+  _DONT_TOUCH_ME_currentRoute: Route | null = null
   _DONT_TOUCH_ME_previousRoute?: Route
 
   currentRoute(): Route {
-    return this._DONT_TOUCH_ME_currentRoute
+    return this._DONT_TOUCH_ME_currentRoute as Route
   }
 
   previousRoute(): Route | null {

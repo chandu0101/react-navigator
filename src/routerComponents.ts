@@ -1,4 +1,10 @@
-import { Component, createElement, ReactElement, CElement } from 'react'
+import {
+  Component,
+  createElement,
+  ReactElement,
+  CElement,
+  ReactNode
+} from 'react'
 import { RouterCtrl } from './routerCtrl'
 import { RouterConfig } from './routerConfig'
 import { Location as HistoryLocation, Action } from 'history'
@@ -37,12 +43,21 @@ export class RouterContext extends Component<RouterContextProps, {}> {
 export type RouterProps = Readonly<{ config: RouterConfig }>
 
 export class RouterClass extends Component<RouterProps, {}> {
-  ctrl: RouterCtrl
+  ctrl: RouterCtrl | null = null
   unlisten?: () => void
 
-  componentWillMount() {
-    const history = this.props.config.history
-    this.ctrl = new RouterCtrl(history, this.props.config)
+  constructor(props: RouterProps) {
+    super(props)
+    this.iniitalSetup(props)
+  }
+
+  render(): ReactNode {
+    return this.ctrl ? createElement(RouterContext, { ctrl: this.ctrl }) : null
+  }
+
+  iniitalSetup(props: RouterProps): void {
+    const history = props.config.history
+    this.ctrl = new RouterCtrl(history, props.config)
     this.unlisten = history.listen(
       (location: HistoryLocation, action: Action) => {
         this.handleAuthAndSetCurrentRoute({
@@ -57,10 +72,6 @@ export class RouterClass extends Component<RouterProps, {}> {
     })
   }
 
-  render(): ReactElement<any> {
-    return createElement(RouterContext, { ctrl: this.ctrl })
-  }
-
   handleAuthAndSetCurrentRoute({
     location,
     action,
@@ -70,43 +81,45 @@ export class RouterClass extends Component<RouterProps, {}> {
     action?: Action
     updateComponent?: boolean
   }): void {
-    const route = getRouteFromLocation({
-      loc: location,
-      action,
-      ctrl: this.ctrl
-    })
-    const isSecured = route.secured ? route.secured : true
-    if (
-      this.ctrl.config._DONT_TOUCH_ME_auth == null ||
-      !isSecured ||
-      this.ctrl.config._DONT_TOUCH_ME_auth.validator()
-    ) {
+    if (this.ctrl) {
+      const route = getRouteFromLocation({
+        loc: location,
+        action,
+        ctrl: this.ctrl
+      })
+      const isSecured = route.secured ? route.secured : true
       if (
-        this.ctrl._DONT_TOUCH_ME_currentRoute &&
-        this.ctrl._DONT_TOUCH_ME_currentRoute.action
+        this.ctrl.config._DONT_TOUCH_ME_auth == null ||
+        !isSecured ||
+        this.ctrl.config._DONT_TOUCH_ME_auth.validator()
       ) {
-        this.ctrl._DONT_TOUCH_ME_previousRoute = this.ctrl._DONT_TOUCH_ME_currentRoute
-      }
-      this.ctrl._DONT_TOUCH_ME_currentRoute = route
-      if (updateComponent) {
-        this.forceUpdate()
-      }
-    } else {
-      let loginRoute: Route | null = null
-      for (let screenKey of Object.keys(
-        this.ctrl.config._DONT_TOUCH_ME_staticRoutes
-      )) {
-        const r = this.ctrl.config._DONT_TOUCH_ME_staticRoutes[screenKey]
-        if (screenKey === this.ctrl.config._DONT_TOUCH_ME_auth.screenKey) {
-          loginRoute = r
-          break
+        if (
+          this.ctrl._DONT_TOUCH_ME_currentRoute &&
+          this.ctrl._DONT_TOUCH_ME_currentRoute.action
+        ) {
+          this.ctrl._DONT_TOUCH_ME_previousRoute = this.ctrl._DONT_TOUCH_ME_currentRoute
         }
-      }
-      if (loginRoute) {
-        if (this.ctrl.config._DONT_TOUCH_ME_auth.action === 'REPLACE') {
-          this.ctrl.config.history.replace(loginRoute.path)
-        } else {
-          this.ctrl.config.history.push(loginRoute.path)
+        this.ctrl._DONT_TOUCH_ME_currentRoute = route
+        if (updateComponent) {
+          this.forceUpdate()
+        }
+      } else {
+        let loginRoute: Route | null = null
+        for (let screenKey of Object.keys(
+          this.ctrl.config._DONT_TOUCH_ME_staticRoutes
+        )) {
+          const r = this.ctrl.config._DONT_TOUCH_ME_staticRoutes[screenKey]
+          if (screenKey === this.ctrl.config._DONT_TOUCH_ME_auth.screenKey) {
+            loginRoute = r
+            break
+          }
+        }
+        if (loginRoute) {
+          if (this.ctrl.config._DONT_TOUCH_ME_auth.action === 'REPLACE') {
+            this.ctrl.config.history.replace(loginRoute.path)
+          } else {
+            this.ctrl.config.history.push(loginRoute.path)
+          }
         }
       }
     }

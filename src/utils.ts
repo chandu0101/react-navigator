@@ -11,6 +11,13 @@ export function removeTrailingForwardSlashes(value: string): string {
 export function getScreenKey<
   C extends new (...args: any[]) => RouterScreenComponent<any, any, any>
 >(ctor: C): string {
+  if (process.env.NODE_ENV !== 'production') {
+    if (!(ctor as any).className) {
+      throw new Error(
+        `Please set static className property on class : ${ctor.name}`
+      )
+    }
+  }
   return (ctor as any).className
 }
 
@@ -23,7 +30,7 @@ export function getRouteFromLocation({
   ctrl: RouterCtrl
   action?: Action
 }): Route {
-  let result: Route = getBackupRoute(ctrl.config)
+  let result: Route
   let paramsLocal: any = undefined
   const pathname =
     loc.pathname == '/' ? '/' : removeTrailingForwardSlashes(loc.pathname)
@@ -56,9 +63,11 @@ export function getRouteFromLocation({
       paramsLocal = {}
       if (result.keys) {
         for (let i = 0; i < result.keys.length; i++) {
-          paramsLocal[result.keys[i].name] = values[i] // TODO Ocheck this
+          paramsLocal[result.keys[i].name] = values[i + 1]
         }
       }
+    } else {
+      result = getBackupRoute(ctrl.config)
     }
   }
   return {

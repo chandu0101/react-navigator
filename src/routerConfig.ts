@@ -17,6 +17,18 @@ export abstract class RouterConfig extends PathUtils {
   _DONT_TOUCH_ME_staticRoutes: Dictionary<Route> = {}
   _DONT_TOUCH_ME_dynamicRoutes: Dictionary<Route> = {}
   _DONT_TOUCH_ME_auth: RouterAuth | null = null
+
+  constructor({
+    history,
+    notfound
+  }: {
+    history: History
+    notfound: RouteNotFound
+  }) {
+    super()
+    this.history = history
+    this.notfound = notfound
+  }
   history: History
   notfound: RouteNotFound
   protected registerScreen<
@@ -104,7 +116,7 @@ export abstract class RouterConfig extends PathUtils {
     const screenKey = getScreenKey(ctor)
     const p = this.prefixSlashAndRemoveTrailingSlashes(path)
     const keys: Key[] = []
-    const pathRegExp = pathToRegExp(path, keys)
+    const pathRegExp = pathToRegExp(p, keys)
     const toPath = pathToRegExp.compile(p)
     this._DONT_TOUCH_ME_dynamicRoutes[screenKey] = {
       path: p,
