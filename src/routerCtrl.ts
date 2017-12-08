@@ -5,8 +5,8 @@ import { RouterScreenComponent } from './routerComponents'
 import { getScreenKey, getBackupRoute } from './utils'
 
 export class RouterCtrl {
-  history: History
-  config: RouterConfig
+  readonly history: History
+  readonly config: RouterConfig
   constructor(history: History, config: RouterConfig) {
     this.history = history
     this.config = config

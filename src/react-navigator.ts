@@ -2,6 +2,11 @@
 // import "core-js/fn/array.find"
 // ...
 
-export { Router, RouterScreenComponent } from './routerComponents'
+export {
+  Router,
+  RouterScreenComponent,
+  RouterScreenProps,
+  RouterProps
+} from './routerComponents'
 export { RouterConfig } from './routerConfig'
 export { getScreenKey } from './utils'

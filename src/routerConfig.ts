@@ -14,8 +14,8 @@ import { ReactElement, createElement } from 'react'
 import { getScreenKey } from './utils'
 
 export abstract class RouterConfig extends PathUtils {
-  _DONT_TOUCH_ME_staticRoutes: Dictionary<Route> = {}
-  _DONT_TOUCH_ME_dynamicRoutes: Dictionary<Route> = {}
+  readonly _DONT_TOUCH_ME_staticRoutes: Dictionary<Route> = {}
+  readonly _DONT_TOUCH_ME_dynamicRoutes: Dictionary<Route> = {}
   _DONT_TOUCH_ME_auth: RouterAuth | null = null
 
   constructor({
