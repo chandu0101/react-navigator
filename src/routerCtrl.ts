@@ -5,12 +5,10 @@ import { RouterScreenComponent } from './routerComponents'
 import { getScreenKey, getBackupRoute } from './utils'
 
 export class RouterCtrl {
-  readonly history: History
-  readonly config: RouterConfig
-  constructor(history: History, config: RouterConfig) {
-    this.history = history
-    this.config = config
-  }
+  constructor(
+    public readonly history: History,
+    public readonly config: RouterConfig
+  ) {}
   _DONT_TOUCH_ME_currentRoute: Route | null = null
   _DONT_TOUCH_ME_previousRoute?: Route
 

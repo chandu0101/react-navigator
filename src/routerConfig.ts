@@ -18,19 +18,12 @@ export abstract class RouterConfig extends PathUtils {
   readonly _DONT_TOUCH_ME_dynamicRoutes: Dictionary<Route> = {}
   _DONT_TOUCH_ME_auth: RouterAuth | null = null
 
-  constructor({
-    history,
-    notfound
-  }: {
-    history: History
-    notfound: RouteNotFound
-  }) {
+  constructor(
+    public readonly history: History,
+    public readonly notfound: RouteNotFound
+  ) {
     super()
-    this.history = history
-    this.notfound = notfound
   }
-  history: History
-  notfound: RouteNotFound
   protected registerScreen<
     C extends new (props: RouterScreenProps) => RouterScreenComponent<
       null,

@@ -56,18 +56,13 @@ class ThirdScreen extends RouterScreenComponent<Params, null, null> {
 
 class Config extends RouterConfig {
   constructor(
-    {
-      history,
-      notfound
-    }: {
-      history: History
-      notfound: RouteNotFound
-    } = {
-      history: createMemoryHistory(),
-      notfound: { page: getScreenKey(HomeScreen), action: 'REPLACE' }
+    history: History = createMemoryHistory(),
+    notfound: RouteNotFound = {
+      page: getScreenKey(HomeScreen),
+      action: 'REPLACE'
     }
   ) {
-    super({ history, notfound })
+    super(history, notfound)
     this.registerScreen({ ctor: HomeScreen, path: '/' })
     this.registerScreen({ ctor: SecondScreen, path: 'second' })
     this.registerDynamicScreen({ ctor: ThirdScreen, path: 'user/:id' })
