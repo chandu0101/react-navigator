@@ -7,7 +7,7 @@ import {
 } from 'react'
 import { RouterCtrl } from './routerCtrl'
 import { RouterConfig } from './routerConfig'
-import { Location as HistoryLocation, Action } from 'history'
+import { Location as HistoryLocation, Action, Location } from 'history'
 import { getRouteFromLocation } from './utils'
 import { Route } from './types'
 
@@ -132,4 +132,68 @@ export class RouterClass extends Component<RouterProps, {}> {
 
 export function Router(props: RouterProps): CElement<RouterProps, RouterClass> {
   return createElement(RouterClass, props)
+}
+
+export type RouteChangePromptProps = Readonly<{
+  blockTransition: boolean
+  message: string | ((location: HistoryLocation, action: Action) => any)
+}>
+
+export class RouteChangePromptClass extends Component<
+  RouteChangePromptProps,
+  {}
+> {
+  constructor(props: RouteChangePromptProps) {
+    super(props)
+    if (props.blockTransition) {
+      this.enable(props.message)
+    }
+  }
+
+  render() {
+    return null
+  }
+
+  unblock: (() => any) | null = null
+
+  enable = (
+    message: string | ((location: Location, action: Action) => any)
+  ) => {
+    if (this.unblock) {
+      this.unblock()
+    }
+    this.unblock = (this.context.navigation as RouterCtrl).config.history.block(
+      message
+    )
+  }
+
+  disable = () => {
+    if (this.unblock) {
+      this.unblock()
+      this.unblock = null
+    }
+  }
+
+  componentDidUpdate(prevProps: RouteChangePromptProps) {
+    if (this.props.blockTransition) {
+      if (
+        !prevProps.blockTransition ||
+        prevProps.message !== this.props.message
+      ) {
+        this.enable(this.props.message)
+      }
+    } else this.disable()
+  }
+
+  componentWillUnmount() {
+    this.disable()
+  }
+
+  static contextTypes = navigationContext
+}
+
+export function RouteChangePrompt(
+  props: RouteChangePromptProps
+): CElement<RouteChangePromptProps, RouteChangePromptClass> {
+  return createElement(RouteChangePromptClass, props)
 }

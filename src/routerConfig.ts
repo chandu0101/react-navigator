@@ -123,7 +123,112 @@ export abstract class RouterConfig extends PathUtils {
     }
   }
 
+  protected registerModule(moduleConfig: RouterModuleConfig) {
+    for (let key of Object.keys(moduleConfig._DONT_TOUCH_ME_staticRoutes)) {
+      this._DONT_TOUCH_ME_staticRoutes[key] =
+        moduleConfig._DONT_TOUCH_ME_staticRoutes[key]
+    }
+    for (let key of Object.keys(moduleConfig._DONT_TOUCH_ME_dynamicRoutes)) {
+      const route = moduleConfig._DONT_TOUCH_ME_dynamicRoutes[key]
+      const keys: Key[] = []
+      const pathRegExp = pathToRegExp(route.path, keys)
+      const toPath = pathToRegExp.compile(route.path)
+      this._DONT_TOUCH_ME_dynamicRoutes[key] = {
+        ...route,
+        keys,
+        toPath,
+        pathRegExp
+      }
+    }
+    moduleConfig._DONT_TOUCH_ME_staticRoutes = {}
+    moduleConfig._DONT_TOUCH_ME_dynamicRoutes = {}
+  }
+
   renderScene(navigation: RouterCtrl): ReactElement<any> {
     return createElement(navigation.currentRoute().component, { navigation })
+  }
+}
+
+export abstract class RouterModuleConfig extends PathUtils {
+  _DONT_TOUCH_ME_staticRoutes: Dictionary<Route> = {}
+  _DONT_TOUCH_ME_dynamicRoutes: Dictionary<Route> = {}
+
+  constructor(private moduleName: string) {
+    super()
+  }
+
+  protected registerScreen<
+    C extends new (props: RouterScreenProps) => RouterScreenComponent<
+      null,
+      any,
+      any
+    >
+  >({
+    ctor,
+    path,
+    title,
+    secured
+  }: {
+    ctor: C
+    path: string
+    title?: string
+    secured?: boolean
+  }): void {
+    const p =
+      '/' + this.moduleName + this.prefixSlashAndRemoveTrailingSlashes(path)
+    const screenKey = getScreenKey(ctor)
+    this._DONT_TOUCH_ME_staticRoutes[screenKey] = {
+      path: p,
+      title: title ? title : '',
+      component: ctor,
+      screenKey,
+      secured: secured ? secured : true
+    }
+  }
+
+  protected registerDynamicScreen<
+    Params extends {},
+    C extends new (props: RouterScreenProps) => RouterScreenComponent<
+      Params,
+      any,
+      any
+    >
+  >({
+    ctor,
+    path,
+    title,
+    secured
+  }: {
+    ctor: C
+    path: string
+    title?: string
+    secured?: boolean
+  }): void {
+    const screenKey = getScreenKey(ctor)
+    const p =
+      this.prefixSlashAndRemoveTrailingSlashes(this.moduleName) +
+      this.prefixSlashAndRemoveTrailingSlashes(path)
+    this._DONT_TOUCH_ME_dynamicRoutes[screenKey] = {
+      path: p,
+      component: ctor,
+      screenKey,
+      title: title ? title : '',
+      secured: secured ? secured : true
+    }
+  }
+
+  protected registerModule(moduleConfig: RouterModuleConfig) {
+    for (let key of Object.keys(moduleConfig._DONT_TOUCH_ME_staticRoutes)) {
+      this._DONT_TOUCH_ME_staticRoutes[key] =
+        moduleConfig._DONT_TOUCH_ME_staticRoutes[key]
+    }
+    for (let key of Object.keys(moduleConfig._DONT_TOUCH_ME_dynamicRoutes)) {
+      const route = moduleConfig._DONT_TOUCH_ME_dynamicRoutes[key]
+      const path =
+        this.prefixSlashAndRemoveTrailingSlashes(this.moduleName) + route.path
+      this._DONT_TOUCH_ME_dynamicRoutes[key] = { ...route, path }
+    }
+    moduleConfig._DONT_TOUCH_ME_staticRoutes = {}
+    moduleConfig._DONT_TOUCH_ME_dynamicRoutes = {}
   }
 }

@@ -40,7 +40,7 @@ export class RouterCtrl {
     this.navigateStatic({ ctor, action, search })
   }
 
-  navigateLS<
+  navigateWithLocationState<
     LocationState extends {},
     C extends new (props: RouterScreenProps) => RouterScreenComponent<
       null,
@@ -61,7 +61,7 @@ export class RouterCtrl {
     this.navigateStatic({ ctor, state, action, search })
   }
 
-  navigateP<
+  navigateWithParams<
     Params extends {},
     C extends new (props: RouterScreenProps) => RouterScreenComponent<
       Params,
@@ -82,7 +82,7 @@ export class RouterCtrl {
     this.navigateDynamic({ ctor, params, action, search })
   }
 
-  navigatePLS<
+  navigateWihtParamsAndLocationState<
     Params extends {},
     LocationState extends {},
     C extends new (props: RouterScreenProps) => RouterScreenComponent<

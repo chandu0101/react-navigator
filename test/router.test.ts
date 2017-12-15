@@ -93,7 +93,10 @@ describe('router', () => {
   })
 
   test('Should handle dynamic screens', () => {
-    navigationCtrl.navigateP({ ctor: ThirdScreen, params: { id: '5' } })
+    navigationCtrl.navigateWithParams({
+      ctor: ThirdScreen,
+      params: { id: '5' }
+    })
     expect(document.getElementById(APP_ID).textContent).toBe(
       'Third Screen id :5'
     )
