@@ -9,7 +9,7 @@ import { History, Action } from 'history'
 import { RouterScreenProps, RouterScreenComponent } from './routerComponents'
 import { Key } from 'path-to-regexp'
 import pathToRegExp from 'path-to-regexp'
-import { RouterCtrl } from './routerCtrl'
+import { Navigation } from './routerCtrl'
 import { ReactElement, createElement } from 'react'
 import { getScreenKey } from './utils'
 
@@ -144,7 +144,7 @@ export abstract class RouterConfig extends PathUtils {
     moduleConfig._DONT_TOUCH_ME_dynamicRoutes = {}
   }
 
-  renderScene(navigation: RouterCtrl): ReactElement<any> {
+  renderScene(navigation: Navigation): ReactElement<any> {
     return createElement(navigation.currentRoute().component, { navigation })
   }
 }

@@ -2,7 +2,8 @@ import { Action } from 'history'
 
 import { RegExpOptions, Key, PathFunction } from 'path-to-regexp'
 import { removeTrailingForwardSlashes } from './utils'
-import { RouterCtrl } from './routerCtrl'
+import { Navigation } from './routerCtrl'
+import { KeyframeAnimationOptions } from './animations'
 
 export type RouterScreenKey = string
 
@@ -38,4 +39,10 @@ export abstract class PathUtils {
 
 export type RouteNotFound = Readonly<{ page: RouterScreenKey; action: Action }>
 
-export type RouterScreenProps = Readonly<{ navigation: RouterCtrl }>
+export type RouterScreenProps = Readonly<{ navigation: Navigation }>
+
+export type AnmationConfig = Readonly<{
+  keyframes: { [key: string]: any } | {}[]
+  options?: number | KeyframeAnimationOptions
+  onfinish?: (e: any) => any
+}>

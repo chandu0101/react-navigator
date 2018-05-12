@@ -1,6 +1,6 @@
 import { RouterScreenComponent } from './routerComponents'
 import { Location as HistoryLocation, Action } from 'history'
-import { RouterCtrl } from './routerCtrl'
+import { Navigation } from './routerCtrl'
 import { RouterConfig } from './routerConfig'
 import { Route } from './types'
 
@@ -27,7 +27,7 @@ export function getRouteFromLocation({
   action
 }: {
   loc: HistoryLocation
-  ctrl: RouterCtrl
+  ctrl: Navigation
   action?: Action
 }): Route {
   let result: Route

@@ -1,4 +1,7 @@
-interface Animation extends EventTarget {
+import { AnmationConfig } from './types'
+import { Component, createElement, ReactElement } from 'react'
+
+export interface Animation extends EventTarget {
   currentTime?: number
   effect: AnimationEffectReadOnly
   readonly finished: Promise<Animation>
@@ -23,20 +26,20 @@ declare var Animation: {
   new (): Animation
 }
 
-interface AnimationTimeLine {
+export interface AnimationTimeLine {
   readonly currentTime?: number
 }
-interface DocumentTimeline extends AnimationTimeLine {}
-interface AnimationEffectReadOnly {
+export interface DocumentTimeline extends AnimationTimeLine {}
+export interface AnimationEffectReadOnly {
   readonly timing: AnimationEffectTimingReadOnly
   getComputedTiming(): ComputedTimingProperties
 }
 
-type AnimationPlayState = 'idle' | 'running' | 'paused' | 'finished'
+export type AnimationPlayState = 'idle' | 'running' | 'paused' | 'finished'
 
-type FillMode = 'none' | 'forwards' | 'backwards' | 'both' | 'auto'
+export type FillMode = 'none' | 'forwards' | 'backwards' | 'both' | 'auto'
 
-interface AnimationEffectTimingReadOnly {
+export interface AnimationEffectTimingReadOnly {
   readonly delay: number
   readonly endDelay: number
   readonly fill: FillMode
@@ -47,13 +50,14 @@ interface AnimationEffectTimingReadOnly {
   readonly easing: string
 }
 
-type PlaybackDirection =
+export type PlaybackDirection =
   | 'normal'
   | 'reverse'
   | 'alternate'
   | 'alternate-reverse'
 
-interface ComputedTimingProperties extends AnimationEffectTimingProperties {
+export interface ComputedTimingProperties
+  extends AnimationEffectTimingProperties {
   endTime: number
   activeDuration: number
   localTime?: number
@@ -61,7 +65,7 @@ interface ComputedTimingProperties extends AnimationEffectTimingProperties {
   currentIteration?: number
 }
 
-interface AnimationEffectTimingProperties {
+export interface AnimationEffectTimingProperties {
   delay?: number
   endDelay?: number
   fill?: FillMode
@@ -72,24 +76,78 @@ interface AnimationEffectTimingProperties {
   easing?: string
 }
 
-type IterationCompositeOperation = 'replace' | 'accumulate'
+export type IterationCompositeOperation = 'replace' | 'accumulate'
 
-type CompositeOperation = 'replace' | 'add' | 'accumulate'
+export type CompositeOperation = 'replace' | 'add' | 'accumulate'
 
-interface KeyframeEffectOptions extends AnimationEffectTimingProperties {
+export interface KeyframeEffectOptions extends AnimationEffectTimingProperties {
   iterationComposite?: IterationCompositeOperation
   composite?: CompositeOperation
 }
 
-interface KeyframeAnimationOptions extends KeyframeEffectOptions {
+export interface KeyframeAnimationOptions extends KeyframeEffectOptions {
   id?: string
 }
 
-interface Animatable {
+export interface Animatable {
   animate: (
     keyframes: { [key: string]: any } | {}[],
     options?: number | KeyframeAnimationOptions
   ) => Animation
 
   getAnimations(): Animation[]
+}
+
+export const DEFAULT_AIMATION_OPTIONS: KeyframeAnimationOptions = {
+  duration: 500,
+  easing: 'ease',
+  fill: 'both'
+}
+
+export const ANIMATE_FROM_LEFT: AnmationConfig = {
+  keyframes: [{ transform: 'translate3D(-100%,0,0)' }, { transform: 'none' }],
+  options: DEFAULT_AIMATION_OPTIONS
+}
+
+export const ANIMATE_FROM_RIGHT: AnmationConfig = {
+  keyframes: [{ transform: 'translate3D(100%,0,0)' }, { transform: 'none' }],
+  options: DEFAULT_AIMATION_OPTIONS
+}
+
+export const ANIMATE_FROM_UP: AnmationConfig = {
+  keyframes: [{ transform: 'translate3D(0,-100%,0)' }, { transform: 'none' }],
+  options: DEFAULT_AIMATION_OPTIONS
+}
+
+export const ANIMATE_FROM_DOWN: AnmationConfig = {
+  keyframes: [{ transform: 'translate3D(0,100%,0)' }, { transform: 'none' }],
+  options: DEFAULT_AIMATION_OPTIONS
+}
+
+export type AnimatorProps = Readonly<{
+  config: AnmationConfig
+  componentProps?: {}
+  component?: any
+}>
+
+export class AnimatorClass extends Component<AnimatorProps, null> {
+  render(): ReactElement<any> {
+    const { config, componentProps, component } = this.props
+    const type = component ? component : 'div'
+    const p = componentProps
+      ? componentProps
+      : { style: { display: 'flex', flex: '1' } }
+    const pwid = { ...p, id: 'Stacker' }
+    return createElement(type, pwid)
+  }
+
+  componentDidUpdate() {
+    const elem = document.getElementById('Stacker')
+    if (elem) {
+      ;((elem as any) as Animatable).animate(
+        this.props.config.keyframes,
+        this.props.config.options
+      )
+    }
+  }
 }

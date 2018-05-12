@@ -5,7 +5,7 @@ import {
   CElement,
   ReactNode
 } from 'react'
-import { RouterCtrl } from './routerCtrl'
+import { Navigation } from './routerCtrl'
 import { RouterConfig } from './routerConfig'
 import { Location as HistoryLocation, Action, Location } from 'history'
 import { getRouteFromLocation } from './utils'
@@ -14,7 +14,7 @@ import { Route } from './types'
 // Can't do import without .d.ts. See https://github.com/Microsoft/TypeScript/issues/15031
 const PropTypes = require('prop-types')
 
-export type RouterScreenProps = Readonly<{ navigation: RouterCtrl }>
+export type RouterScreenProps = Readonly<{ navigation: Navigation }>
 
 export abstract class RouterScreenComponent<Params, S, LS> extends Component<
   RouterScreenProps,
@@ -22,13 +22,13 @@ export abstract class RouterScreenComponent<Params, S, LS> extends Component<
 > {
   params?: Params
   locationState?: LS
-  navigation: RouterCtrl = this.props.navigation
+  navigation: Navigation = this.props.navigation
   static className: string
 }
 
 export const navigationContext = { navigation: PropTypes.object }
 
-export type RouterContextProps = { ctrl: RouterCtrl }
+export type RouterContextProps = { ctrl: Navigation }
 
 export class RouterContext extends Component<RouterContextProps, {}> {
   render() {
@@ -43,7 +43,7 @@ export class RouterContext extends Component<RouterContextProps, {}> {
 export type RouterProps = Readonly<{ config: RouterConfig }>
 
 export class RouterClass extends Component<RouterProps, {}> {
-  ctrl: RouterCtrl | null = null
+  ctrl: Navigation | null = null
   unlisten?: () => void
 
   constructor(props: RouterProps) {
@@ -57,7 +57,7 @@ export class RouterClass extends Component<RouterProps, {}> {
 
   iniitalSetup(props: RouterProps): void {
     const history = props.config.history
-    this.ctrl = new RouterCtrl(history, props.config)
+    this.ctrl = new Navigation(history, props.config)
     this.unlisten = history.listen(
       (location: HistoryLocation, action: Action) => {
         this.handleAuthAndSetCurrentRoute({
@@ -162,7 +162,7 @@ export class RouteChangePromptClass extends Component<
     if (this.unblock) {
       this.unblock()
     }
-    this.unblock = (this.context.navigation as RouterCtrl).config.history.block(
+    this.unblock = (this.context.navigation as Navigation).config.history.block(
       message
     )
   }

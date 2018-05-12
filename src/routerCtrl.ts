@@ -4,7 +4,7 @@ import { Route, RouterScreenProps } from './types'
 import { RouterScreenComponent } from './routerComponents'
 import { getScreenKey, getBackupRoute } from './utils'
 
-export class RouterCtrl {
+export class Navigation {
   constructor(
     public readonly history: History,
     public readonly config: RouterConfig
